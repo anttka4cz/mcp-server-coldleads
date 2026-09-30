@@ -3,7 +3,7 @@ import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js"
 import { ColdLeadsClient, DEFAULT_BASE } from "./api.js";
 import { createServer } from "./server.js";
 
-// Stdio entry point: `npx -y @coldleads/mcp-server` with COLDLEADS_API_KEY in the environment.
+// Stdio entry point: `npx -y github:anttka4cz/mcp-server-coldleads` with COLDLEADS_API_KEY in the environment.
 // Starts and lists tools without a key (so clients and registries can inspect it); calls need the key.
 // Logs go to stderr only — stdout carries JSON-RPC.
 const key = process.env.COLDLEADS_API_KEY ?? "";

@@ -1,7 +1,7 @@
 {
   "name": "@coldleads/mcp-server",
   "version": "1.0.0",
-  "description": "Model Context Protocol server for Cold Leads (coldleads.app): verify e-mail addresses with catch-all detection, look up leads by company domain, and onboard agents with human-approved payment.",
+  "description": "Model Context Protocol server for Cold Leads (coldleads.app): verify e-mail addresses, look up contacts in your own Cold Leads CRM by company domain, and onboard agents with human-approved payment.",
   "mcpName": "io.github.anttka4cz/mcp-server-coldleads",
   "type": "module",
   "bin": {
@@ -14,7 +14,7 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=18.17"
+    "node": ">=20"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json && chmod +x dist/index.js",
@@ -27,7 +27,6 @@
     "mcp",
     "model-context-protocol",
     "email-verification",
-    "catch-all",
     "b2b",
     "leads",
     "crm",

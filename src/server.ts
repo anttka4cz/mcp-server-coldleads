@@ -5,7 +5,7 @@ import { LEADS_DEFAULT, LEADS_MAX, TOOLS } from "./tools.js";
 
 export const SERVER_INFO = { name: "coldleads", title: "Cold Leads", version: "1.0.0" };
 const INSTRUCTIONS =
-  "Cold Leads tools: search_leads finds contacts already in the user's Cold Leads CRM for a company domain (free); verify_email checks one address live (1 credit, < 5 s). Never e-mail leads with do_not_contact=true. Verification is not consent: the user needs a lawful basis to contact each person. Without an API key, provision_account_and_get_payment_link creates a payment link for the human owner to approve; check_provisioning_status then returns the key once.";
+  "Cold Leads tools: search_leads finds contacts already in the user's own Cold Leads CRM for a company domain (free; Cold Leads has no third-party lead database); verify_email checks one address (1 credit, about 5 s; the SMTP mailbox and catch-all check runs only when available, see reasons). Never e-mail leads with do_not_contact=true. Verification is not consent: the user needs a lawful basis to contact each person. Without an API key, provision_account_and_get_payment_link creates a payment link for the human owner to approve; check_provisioning_status then returns the key once.";
 
 type ToolResult = { content: { type: "text"; text: string }[]; isError?: boolean };
 const text = (obj: unknown, isError = false): ToolResult => ({ content: [{ type: "text", text: JSON.stringify(obj) }], ...(isError ? { isError: true } : {}) });
@@ -88,7 +88,8 @@ export async function callTool(client: ColdLeadsClient, name: string, rawArgs: u
       status: "success",
       email: d.email,
       validity: d.status,
-      catch_all: reasons.includes("timeout") ? null : d.catch_all === true,
+      // catch_all is known only when the SMTP probe got an answer (ok / catch_all / mailbox_missing)
+      catch_all: reasons.some((x) => x === "ok" || x === "catch_all" || x === "mailbox_missing") ? d.catch_all === true : null,
       score: d.score,
       reasons,
       disposable: d.disposable === true,

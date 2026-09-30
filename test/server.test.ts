@@ -57,6 +57,10 @@ describe("verify_email", () => {
     expect(JSON.parse(String(calls[0].init.body))).toEqual({ email: "john@example.com", timeout_ms: 4000 });
     expect((calls[0].init.headers as Record<string, string>).Authorization).toBe("Bearer sk_test");
   });
+  it("a mailbox that could not be checked (smtp_unreachable) reports catch_all=null", async () => {
+    const client = await setup(async () => json(200, { email: "jane@firma.cz", status: "valid", score: 75, reasons: ["smtp_unreachable"], mx: "mx", catch_all: false, disposable: false, role: false }));
+    expect(parse(await client.callTool({ name: "verify_email", arguments: { email: "jane@firma.cz" } })).data).toMatchObject({ validity: "valid", catch_all: null, reasons: ["smtp_unreachable"] });
+  });
   it("parses catch-all domains; a server-side timeout reports catch_all=null", async () => {
     let n = 0;
     const client = await setup(async () =>

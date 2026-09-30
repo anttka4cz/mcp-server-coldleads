@@ -1,5 +1,6 @@
-// Tool definitions shared by the stdio server. The hosted endpoint https://coldleads.app/api/mcp exposes the same
-// names, descriptions and input schemas (JSON Schema draft-07).
+// Tool definitions of the stdio server (JSON Schema draft-07). search_leads and verify_email match the hosted endpoint
+// https://coldleads.app/api/mcp word for word. The two onboarding tools exist only here: the hosted endpoint needs an
+// API key on every request, while this server can call POST /api/agent/provision without one.
 export const LEADS_MAX = 50;
 export const LEADS_DEFAULT = 10;
 
@@ -25,7 +26,7 @@ export const TOOLS = [
     name: "verify_email",
     title: "Verify an e-mail address",
     description:
-      "Performs deep verification of an e-mail address (syntax, disposable domain, role account, MX records and a live SMTP mailbox check), returning validity status (valid, risky or invalid) and catch-all domain detection. Answers within 5 seconds; costs 1 credit.",
+      "Verifies an e-mail address: syntax, disposable domain, role account and MX records, plus an SMTP mailbox and catch-all check when Cold Leads can open an SMTP connection to the recipient's mail server (otherwise reasons contains smtp_unreachable and catch_all is null). Returns validity (valid, risky or invalid), a score and reason codes. Answers within about 5 seconds; costs 1 credit.",
     inputSchema: {
       type: "object",
       properties: {
