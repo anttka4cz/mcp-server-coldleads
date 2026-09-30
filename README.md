@@ -3,10 +3,10 @@
 Model Context Protocol server for [Cold Leads](https://coldleads.app), the B2B outreach CRM. It lets AI agents in MCP clients that can start a local stdio server (Claude Desktop, Claude Code, Cursor, Windsurf, VS Code) verify e-mail addresses and look up contacts in your own Cold Leads workspace — and, when there is no API key yet, ask the human owner to approve a subscription.
 
 ```bash
-npx -y github:anttka4cz/mcp-server-coldleads
+npx -y --allow-git=root github:anttka4cz/mcp-server-coldleads
 ```
 
-The package is not on npm; npx installs and builds it straight from GitHub.
+The package is not on npm; npx installs and builds it straight from GitHub. npm 12 blocks installs from git unless you allow them, which `--allow-git=root` does for this command; npm 10 accepts the flag too.
 
 ## Tools
 
@@ -42,7 +42,7 @@ Errors come back as tool results with `isError: true`, for example `{"status":"e
   "mcpServers": {
     "coldleads": {
       "command": "npx",
-      "args": ["-y", "github:anttka4cz/mcp-server-coldleads"],
+      "args": ["-y", "--allow-git=root", "github:anttka4cz/mcp-server-coldleads"],
       "env": { "COLDLEADS_API_KEY": "sk_your_secret_key" }
     }
   }
@@ -56,7 +56,7 @@ Errors come back as tool results with `isError: true`, for example `{"status":"e
 ### Claude Code
 
 ```bash
-claude mcp add coldleads --env COLDLEADS_API_KEY=sk_your_secret_key -- npx -y github:anttka4cz/mcp-server-coldleads
+claude mcp add coldleads --env COLDLEADS_API_KEY=sk_your_secret_key -- npx -y --allow-git=root github:anttka4cz/mcp-server-coldleads
 ```
 
 ### VS Code
@@ -69,7 +69,7 @@ claude mcp add coldleads --env COLDLEADS_API_KEY=sk_your_secret_key -- npx -y gi
     "coldleads": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "github:anttka4cz/mcp-server-coldleads"],
+      "args": ["-y", "--allow-git=root", "github:anttka4cz/mcp-server-coldleads"],
       "env": { "COLDLEADS_API_KEY": "sk_your_secret_key" }
     }
   }
