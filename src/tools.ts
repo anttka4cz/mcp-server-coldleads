@@ -13,7 +13,7 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        domain: { type: "string", minLength: 3, maxLength: 253, description: "Company domain, e.g. acme.com. A URL or an e-mail address is reduced to its domain." },
+        domain: { type: "string", minLength: 3, maxLength: 253, description: "Company domain, e.g. example.com. A URL or an e-mail address is reduced to its domain." },
         role: { type: "string", maxLength: 80, description: "Optional keyword such as sales, ceo or marketing, matched against the contact's name, e-mail local part, tags, notes and type." },
         limit: { type: "integer", minimum: 1, maximum: LEADS_MAX, default: LEADS_DEFAULT, description: `Maximum number of leads to return (1–${LEADS_MAX}, default ${LEADS_DEFAULT}).` },
       },
@@ -30,7 +30,7 @@ export const TOOLS = [
     inputSchema: {
       type: "object",
       properties: {
-        email: { type: "string", minLength: 3, maxLength: 254, description: "The e-mail address to verify, e.g. anna@acme.com." },
+        email: { type: "string", minLength: 3, maxLength: 254, description: "The e-mail address to verify, e.g. anna@example.com." },
       },
       required: ["email"],
       additionalProperties: false,

@@ -17,10 +17,10 @@ The package is not on npm; npx installs and builds it straight from GitHub. npm 
 | `provision_account_and_get_payment_link` | For agents without a key: creates a pending account for the human owner and returns a Stripe payment link for the Business plan. The human decides and pays. | — |
 | `check_provisioning_status` | After the owner paid: returns the API key exactly once (with the `claim_token`). The server starts using it immediately. | — |
 
-Responses are compact JSON in a text block, for example for an address whose mailbox could not be checked:
+Responses are compact JSON in a text block. An illustrative result for an address whose mailbox could not be checked (example.com is reserved for documentation):
 
 ```json
-{"status":"success","email":"jane.doe@gmail.com","validity":"valid","catch_all":null,"score":75,"reasons":["smtp_unreachable"],"disposable":false,"role_account":false}
+{"status":"success","email":"jane.doe@example.com","validity":"valid","catch_all":null,"score":75,"reasons":["smtp_unreachable"],"disposable":false,"role_account":false}
 ```
 
 Errors come back as tool results with `isError: true`, for example `{"status":"error","error":"rate_limited","message":"…","http_status":429,"retry_after_seconds":60}`.

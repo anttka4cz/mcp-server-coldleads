@@ -99,14 +99,14 @@ export async function callTool(client: ColdLeadsClient, name: string, rawArgs: u
   const extra = unknownKeys(args, ["domain", "role", "limit"]);
   if (extra.length) return toolError("invalid_arguments", `unknown argument(s): ${extra.join(", ")}`);
   const domain = typeof args.domain === "string" ? args.domain.trim() : "";
-  if (domain.length < 3 || domain.length > 253) return toolError("invalid_arguments", "domain is required, e.g. acme.com");
+  if (domain.length < 3 || domain.length > 253) return toolError("invalid_arguments", "domain is required, e.g. example.com");
   if (args.role !== undefined && (typeof args.role !== "string" || args.role.length > 80)) return toolError("invalid_arguments", "role must be a string of up to 80 characters");
   if (args.limit !== undefined && (!Number.isInteger(args.limit) || (args.limit as number) < 1 || (args.limit as number) > LEADS_MAX)) {
     return toolError("invalid_arguments", `limit must be an integer between 1 and ${LEADS_MAX}`);
   }
   if (!client.hasKey()) return toolError("missing_api_key", MESSAGES.missing_api_key);
   const r = await client.searchLeads(domain, args.role as string | undefined, (args.limit as number | undefined) ?? LEADS_DEFAULT);
-  if (!r.ok) return r.error === "domain_required" ? toolError("invalid_arguments", "domain is not a valid company domain, e.g. acme.com") : fromApi(r);
+  if (!r.ok) return r.error === "domain_required" ? toolError("invalid_arguments", "domain is not a valid company domain, e.g. example.com") : fromApi(r);
   return text({ status: "success", domain: r.data.domain, count: r.data.count, source: r.data.source, leads: r.data.leads });
 }
 
