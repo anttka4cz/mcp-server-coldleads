@@ -1,0 +1,47 @@
+{
+  "name": "@coldleads/mcp-server",
+  "version": "1.0.0",
+  "description": "Model Context Protocol server for Cold Leads (coldleads.app): search leads by company domain and verify e-mail addresses with catch-all detection.",
+  "mcpName": "app.coldleads/mcp-server",
+  "type": "module",
+  "bin": {
+    "mcp-server-coldleads": "dist/index.js"
+  },
+  "main": "dist/server.js",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.17"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json && chmod +x dist/index.js",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "email-verification",
+    "catch-all",
+    "b2b",
+    "leads",
+    "crm",
+    "coldleads"
+  ],
+  "homepage": "https://coldleads.app",
+  "license": "MIT",
+  "author": "Anton Tkachenko",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.31.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "ajv": "^8.17.1",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
+  }
+}
