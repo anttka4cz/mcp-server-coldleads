@@ -4,6 +4,7 @@ Model Context Protocol server for [Cold Leads](https://coldleads.app), the B2B o
 
 ```bash
 npx -y @coldleads/mcp-server
+# before the first npm release: npx -y github:anttka4cz/mcp-server-coldleads
 ```
 
 ## Tools
