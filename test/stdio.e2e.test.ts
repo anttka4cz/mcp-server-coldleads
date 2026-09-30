@@ -44,7 +44,7 @@ describe("stdio child process", () => {
     expect(client.getServerVersion()).toMatchObject({ name: "coldleads" });
     expect(client.getServerCapabilities()).toMatchObject({ tools: {} });
     const { tools } = await client.listTools();
-    expect(tools.map((t) => t.name)).toEqual(["search_leads", "verify_email"]);
+    expect(tools.map((t) => t.name)).toEqual(["search_leads", "verify_email", "provision_account_and_get_payment_link", "check_provisioning_status"]);
     await client.close();
   });
   it("dummy key → 401 is reported as bad_api_key for both tools", async () => {
@@ -63,7 +63,7 @@ describe("stdio child process", () => {
   });
   it("no key at all still starts and lists tools; calls explain the missing key", async () => {
     const client = await spawn("");
-    expect((await client.listTools()).tools).toHaveLength(2);
+    expect((await client.listTools()).tools).toHaveLength(4);
     expect(parse(await client.callTool({ name: "search_leads", arguments: { domain: "acme.com" } })).data).toMatchObject({ error: "missing_api_key" });
     await client.close();
   });

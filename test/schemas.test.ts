@@ -24,6 +24,15 @@ describe("tool input schemas (JSON Schema draft-07)", () => {
     expect(v({ domain: "acme.com", role: "sales", limit: 5 })).toBe(true);
     for (const bad of [{}, { domain: "ac" }, { domain: "acme.com", limit: 0 }, { domain: "acme.com", limit: 51 }, { domain: "acme.com", limit: 1.5 }, { domain: "acme.com", x: 1 }]) expect(v(bad)).toBe(false);
   });
+  it("provision_account_and_get_payment_link and check_provisioning_status accept and reject the right arguments", () => {
+    const p = ajv.compile(TOOLS[2].inputSchema);
+    expect(p({ owner_email: "boss@acme.com" })).toBe(true);
+    expect(p({ owner_email: "boss@acme.com", agent_id: "Scout", callback_url: "https://agent.example/cb" })).toBe(true);
+    for (const bad of [{}, { owner_email: "boss@acme.com", callback_url: "http://agent.example/cb" }, { owner_email: "boss@acme.com", agent_id: "" }, { owner_email: "a@b.cz", x: 1 }]) expect(p(bad)).toBe(false);
+    const c = ajv.compile(TOOLS[3].inputSchema);
+    expect(c({ session_id: "cs_123", claim_token: "clt_0123456789" })).toBe(true);
+    for (const bad of [{ session_id: "cs_123" }, { claim_token: "clt_0123456789" }, { session_id: "cs_123", claim_token: "short" }]) expect(c(bad)).toBe(false);
+  });
   it("verify_email accepts and rejects the right arguments", () => {
     const v = ajv.compile(TOOLS[1].inputSchema);
     expect(v({ email: "anna@acme.com" })).toBe(true);

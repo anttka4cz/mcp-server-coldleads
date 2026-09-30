@@ -1,8 +1,8 @@
 {
   "name": "@coldleads/mcp-server",
   "version": "1.0.0",
-  "description": "Model Context Protocol server for Cold Leads (coldleads.app): search leads by company domain and verify e-mail addresses with catch-all detection.",
-  "mcpName": "app.coldleads/mcp-server",
+  "description": "Model Context Protocol server for Cold Leads (coldleads.app): verify e-mail addresses with catch-all detection, look up leads by company domain, and onboard agents with human-approved payment.",
+  "mcpName": "io.github.anttka4cz/mcp-server-coldleads",
   "type": "module",
   "bin": {
     "mcp-server-coldleads": "dist/index.js"
@@ -32,7 +32,7 @@
     "crm",
     "coldleads"
   ],
-  "homepage": "https://coldleads.app",
+  "homepage": "https://github.com/anttka4cz/mcp-server-coldleads#readme",
   "license": "MIT",
   "author": "Anton Tkachenko",
   "dependencies": {
@@ -43,5 +43,12 @@
     "ajv": "^8.17.1",
     "typescript": "^5.9.3",
     "vitest": "^3.2.4"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anttka4cz/mcp-server-coldleads.git"
+  },
+  "bugs": {
+    "url": "https://github.com/anttka4cz/mcp-server-coldleads/issues"
   }
 }

@@ -5,7 +5,7 @@ import { LEADS_DEFAULT, LEADS_MAX, TOOLS } from "./tools.js";
 
 export const SERVER_INFO = { name: "coldleads", title: "Cold Leads", version: "1.0.0" };
 const INSTRUCTIONS =
-  "Cold Leads tools: search_leads finds contacts already in the user's Cold Leads CRM for a company domain (free); verify_email checks one address live (1 credit, < 5 s). Never e-mail leads with do_not_contact=true. Verification is not consent: the user needs a lawful basis to contact each person.";
+  "Cold Leads tools: search_leads finds contacts already in the user's Cold Leads CRM for a company domain (free); verify_email checks one address live (1 credit, < 5 s). Never e-mail leads with do_not_contact=true. Verification is not consent: the user needs a lawful basis to contact each person. Without an API key, provision_account_and_get_payment_link creates a payment link for the human owner to approve; check_provisioning_status then returns the key once.";
 
 type ToolResult = { content: { type: "text"; text: string }[]; isError?: boolean };
 const text = (obj: unknown, isError = false): ToolResult => ({ content: [{ type: "text", text: JSON.stringify(obj) }], ...(isError ? { isError: true } : {}) });
@@ -20,6 +20,12 @@ const MESSAGES: Record<string, string> = {
   no_credits: "No verification credits left this month; the account owner can add credits in Cold Leads settings.",
   rate_limited: "Rate limit reached (120 requests per minute per key). Wait a minute and retry.",
   timeout: "Cold Leads did not answer in time. Retry later.",
+  account_exists: "This e-mail already has a Cold Leads workspace. Ask the owner to create a secret API key in Settings → API keys (Business plan) and set it as COLDLEADS_API_KEY.",
+  not_found: "No provisioning found for this session_id.",
+  invalid_owner_email: "owner_email must be the human owner's e-mail address.",
+  invalid_callback_url: "callback_url must be an https URL on a public host.",
+  not_configured: "Payments are not configured on this Cold Leads server.",
+  gateway: "The payment provider could not create a checkout; retry later.",
   network_error: "Cold Leads could not be reached.",
 };
 
@@ -37,10 +43,37 @@ function unknownKeys(a: Record<string, unknown>, allowed: string[]) {
   return Object.keys(a).filter((k) => !allowed.includes(k));
 }
 
-export async function callTool(client: ColdLeadsClient, name: string, rawArgs: unknown): Promise<ToolResult | null> {
-  if (name !== "verify_email" && name !== "search_leads") return null;
+const KNOWN = ["verify_email", "search_leads", "provision_account_and_get_payment_link", "check_provisioning_status"];
+
+export async function callTool(client: ColdLeadsClient, name: string, rawArgs: unknown, clientName = "client"): Promise<ToolResult | null> {
+  if (!KNOWN.includes(name)) return null;
   const args = objectArgs(rawArgs ?? {});
   if (!args) return toolError("invalid_arguments", "arguments must be an object");
+  if (name === "provision_account_and_get_payment_link") {
+    const extra = unknownKeys(args, ["owner_email", "agent_id", "callback_url"]);
+    if (extra.length) return toolError("invalid_arguments", `unknown argument(s): ${extra.join(", ")}`);
+    if (typeof args.owner_email !== "string" || args.owner_email.trim().length < 3) return toolError("invalid_arguments", "owner_email is required");
+    if (args.agent_id !== undefined && (typeof args.agent_id !== "string" || !args.agent_id.trim() || args.agent_id.length > 100)) return toolError("invalid_arguments", "agent_id must be a non-empty string of up to 100 characters");
+    if (args.callback_url !== undefined && (typeof args.callback_url !== "string" || !args.callback_url.startsWith("https://"))) return toolError("invalid_arguments", "callback_url must start with https://");
+    const agentId = (args.agent_id as string | undefined)?.trim() || `mcp:${clientName}`.slice(0, 100);
+    const r = await client.provision(args.owner_email.trim(), agentId, args.callback_url as string | undefined);
+    if (!r.ok) return fromApi(r);
+    return text(r.data);
+  }
+  if (name === "check_provisioning_status") {
+    const extra = unknownKeys(args, ["session_id", "claim_token"]);
+    if (extra.length) return toolError("invalid_arguments", `unknown argument(s): ${extra.join(", ")}`);
+    if (typeof args.session_id !== "string" || typeof args.claim_token !== "string" || args.claim_token.length < 10) return toolError("invalid_arguments", "session_id and claim_token are required");
+    const r = await client.provisioningStatus(args.session_id, args.claim_token);
+    if (!r.ok) return fromApi(r);
+    const data = { ...r.data };
+    if (typeof data.api_key === "string" && data.api_key.startsWith("sk_")) {
+      client.setKey(data.api_key);
+      data.session_key_updated = true;
+      data.message = `${String(data.message ?? "")} This MCP server now uses the new key for the rest of the session; also set COLDLEADS_API_KEY so it is used after a restart.`.trim();
+    }
+    return text(data);
+  }
   if (name === "verify_email") {
     const extra = unknownKeys(args, ["email"]);
     if (extra.length) return toolError("invalid_arguments", `unknown argument(s): ${extra.join(", ")}`);
@@ -80,7 +113,7 @@ export function createServer(client: ColdLeadsClient): Server {
   const server = new Server(SERVER_INFO, { capabilities: { tools: { listChanged: false } }, instructions: INSTRUCTIONS });
   server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS as unknown as { name: string; inputSchema: { type: "object" } }[] }));
   server.setRequestHandler(CallToolRequestSchema, async (req) => {
-    const result = await callTool(client, req.params.name, req.params.arguments);
+    const result = await callTool(client, req.params.name, req.params.arguments, server.getClientVersion()?.name ?? "client");
     if (!result) return toolError("unknown_tool", `Unknown tool: ${req.params.name}`);
     return result;
   });

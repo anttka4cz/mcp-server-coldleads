@@ -1,0 +1,21 @@
+# Smithery configuration: https://smithery.ai/docs/config#smitheryyaml
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    properties:
+      coldleadsApiKey:
+        type: string
+        description: Cold Leads secret API key (sk_…) from Settings → API keys (Business plan). Optional — without it only agent onboarding works.
+    required: []
+  commandFunction: |-
+    (config) => ({
+      command: 'node',
+      args: ['dist/index.js'],
+      env: { COLDLEADS_API_KEY: config.coldleadsApiKey || '' }
+    })
+  exampleConfig:
+    coldleadsApiKey: sk_your_secret_key
+build:
+  dockerfile: Dockerfile
+  dockerBuildPath: .

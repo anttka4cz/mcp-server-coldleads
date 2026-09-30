@@ -37,11 +37,13 @@ const setup = async (f: FetchLike, key?: string) => {
 };
 
 describe("tools/list", () => {
-  it("lists search_leads and verify_email with object input schemas and read-only annotations", async () => {
+  it("lists the four tools with object input schemas; lookups are read-only, onboarding is not", async () => {
     const client = await setup(async () => json(200, {}));
     const { tools } = await client.listTools();
-    expect(tools.map((t) => t.name)).toEqual(["search_leads", "verify_email"]);
-    expect(tools.every((t) => t.inputSchema.type === "object" && t.annotations?.readOnlyHint === true)).toBe(true);
+    expect(tools.map((t) => t.name)).toEqual(["search_leads", "verify_email", "provision_account_and_get_payment_link", "check_provisioning_status"]);
+    expect(tools.every((t) => t.inputSchema.type === "object")).toBe(true);
+    expect(tools.slice(0, 2).every((t) => t.annotations?.readOnlyHint === true)).toBe(true);
+    expect(tools.slice(2).every((t) => t.annotations?.readOnlyHint === false)).toBe(true);
     expect(client.getServerVersion()).toMatchObject({ name: "coldleads", version: "1.0.0" });
   });
 });
@@ -131,3 +133,59 @@ describe("search_leads", () => {
     expect(parse(await client.callTool({ name: "nope", arguments: {} })).data).toMatchObject({ error: "unknown_tool" });
   });
 });
+
+describe("agent onboarding without a key", () => {
+  it("provision_account_and_get_payment_link posts without Authorization and returns the payment payload", async () => {
+    const payload = { status: "payment_required", checkout_url: "https://checkout.stripe.com/c/pay/cs_1", session_id: "cs_1", claim_token: "clt_abc", plan: { id: "business" } };
+    const client = await setup(async () => json(200, payload), "");
+    const r = parse(await client.callTool({ name: "provision_account_and_get_payment_link", arguments: { owner_email: "boss@acme.com", agent_id: "Scout" } }));
+    expect(r).toEqual({ isError: false, type: "text", data: payload });
+    expect(calls[0].url).toBe("https://api.test/api/agent/provision");
+    expect(JSON.parse(String(calls[0].init.body))).toEqual({ owner_email: "boss@acme.com", agent_id: "Scout" });
+    expect((calls[0].init.headers as Record<string, string>).Authorization).toBeUndefined();
+  });
+  it("defaults agent_id to the MCP client name", async () => {
+    const client = await setup(async () => json(200, { status: "payment_required" }), "");
+    await client.callTool({ name: "provision_account_and_get_payment_link", arguments: { owner_email: "boss@acme.com" } });
+    expect(JSON.parse(String(calls[0].init.body)).agent_id).toBe("mcp:test");
+  });
+  it("maps refusals (409 account_exists, 429) to isError results", async () => {
+    let n = 0;
+    const client = await setup(async () => (n++ === 0 ? json(409, { error: "account_exists", hint: "ask the owner" }) : json(429, { error: "rate_limited" })), "");
+    expect(parse(await client.callTool({ name: "provision_account_and_get_payment_link", arguments: { owner_email: "a@b.cz" } })).data).toMatchObject({ error: "account_exists", http_status: 409 });
+    expect(parse(await client.callTool({ name: "provision_account_and_get_payment_link", arguments: { owner_email: "a@b.cz" } })).data).toMatchObject({ error: "rate_limited", http_status: 429 });
+  });
+  it("check_provisioning_status sends the claim token as a header; an issued key is used at once", async () => {
+    let step = 0;
+    const client = await setup(async (url) => {
+      step++;
+      if (url.includes("/api/agent/status")) return json(200, { status: "active", api_key: `sk_${"b".repeat(48)}`, api_key_prefix: "sk_…bbbb", message: "Shown once." });
+      return json(200, { email: "x@acme.com", status: "valid", score: 97, reasons: ["ok"], catch_all: false, disposable: false, role: false });
+    }, "");
+    const r = parse(await client.callTool({ name: "check_provisioning_status", arguments: { session_id: "cs_1", claim_token: "clt_0123456789" } }));
+    expect(r.data).toMatchObject({ status: "active", session_key_updated: true });
+    expect(calls[0].url).toBe("https://api.test/api/agent/status?session_id=cs_1");
+    expect((calls[0].init.headers as Record<string, string>)["X-Claim-Token"]).toBe("clt_0123456789");
+    expect((calls[0].init.headers as Record<string, string>).Authorization).toBeUndefined();
+    // verify_email now works with the key issued moments ago
+    const v = parse(await client.callTool({ name: "verify_email", arguments: { email: "x@acme.com" } }));
+    expect(v.isError).toBe(false);
+    expect((calls[1].init.headers as Record<string, string>).Authorization).toBe(`Bearer sk_${"b".repeat(48)}`);
+    expect(step).toBe(2);
+  });
+  it("pending status does not change the key; bad arguments never reach the API", async () => {
+    const client = await setup(async () => json(200, { status: "pending_payment", session_id: "cs_1" }), "");
+    expect(parse(await client.callTool({ name: "check_provisioning_status", arguments: { session_id: "cs_1", claim_token: "clt_0123456789" } })).data).toEqual({ status: "pending_payment", session_id: "cs_1" });
+    calls = [];
+    for (const [name, args] of [
+      ["provision_account_and_get_payment_link", {}],
+      ["provision_account_and_get_payment_link", { owner_email: "a@b.cz", callback_url: "http://x.test" }],
+      ["check_provisioning_status", { session_id: "cs_1" }],
+      ["check_provisioning_status", { session_id: "cs_1", claim_token: "short" }],
+    ] as const) {
+      expect(parse(await client.callTool({ name, arguments: args as Record<string, unknown> })).isError).toBe(true);
+    }
+    expect(calls).toHaveLength(0);
+  });
+});
+

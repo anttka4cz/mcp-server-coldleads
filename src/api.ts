@@ -12,20 +12,33 @@ export const DEFAULT_TIMEOUT_MS = 15_000;
 export const USER_AGENT = "coldleads-mcp-server/1.0.0";
 
 export class ColdLeadsClient {
+  private key: string;
+
   constructor(
-    readonly apiKey: string,
+    apiKey: string,
     readonly baseUrl: string = DEFAULT_BASE,
     private readonly fetchImpl: FetchLike = (u, i) => fetch(u, i),
-  ) {}
-
-  hasKey(): boolean {
-    return this.apiKey.trim().length > 0;
+  ) {
+    this.key = apiKey.trim();
   }
 
-  async request(method: "GET" | "POST", path: string, body?: unknown, timeoutMs = DEFAULT_TIMEOUT_MS, auth = true): Promise<ApiResult> {
+  get apiKey(): string {
+    return this.key;
+  }
+
+  hasKey(): boolean {
+    return this.key.length > 0;
+  }
+
+  // the key issued after the owner paid is used for the rest of this session (the agent should also persist it)
+  setKey(apiKey: string): void {
+    this.key = apiKey.trim();
+  }
+
+  async request(method: "GET" | "POST", path: string, body?: unknown, timeoutMs = DEFAULT_TIMEOUT_MS, auth = true, extraHeaders: Record<string, string> = {}): Promise<ApiResult> {
     const url = `${this.baseUrl.replace(/\/+$/, "")}${path}`;
-    const headers: Record<string, string> = { Accept: "application/json", "User-Agent": USER_AGENT };
-    if (auth) headers.Authorization = `Bearer ${this.apiKey.trim()}`;
+    const headers: Record<string, string> = { Accept: "application/json", "User-Agent": USER_AGENT, ...extraHeaders };
+    if (auth) headers.Authorization = `Bearer ${this.key}`;
     if (body !== undefined) headers["Content-Type"] = "application/json";
     let res: Response;
     try {
@@ -53,5 +66,14 @@ export class ColdLeadsClient {
     const q = new URLSearchParams({ domain, limit: String(limit) });
     if (role) q.set("role", role);
     return this.request("GET", `/api/v1/leads?${q.toString()}`);
+  }
+
+  // agent onboarding without a key (no Authorization header)
+  provision(ownerEmail: string, agentId: string, callbackUrl?: string): Promise<ApiResult> {
+    return this.request("POST", "/api/agent/provision", { owner_email: ownerEmail, agent_id: agentId, ...(callbackUrl ? { callback_url: callbackUrl } : {}) }, DEFAULT_TIMEOUT_MS, false);
+  }
+
+  provisioningStatus(sessionId: string, claimToken: string): Promise<ApiResult> {
+    return this.request("GET", `/api/agent/status?session_id=${encodeURIComponent(sessionId)}`, undefined, DEFAULT_TIMEOUT_MS, false, { "X-Claim-Token": claimToken });
   }
 }
