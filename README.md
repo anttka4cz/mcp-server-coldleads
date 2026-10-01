@@ -78,7 +78,7 @@ claude mcp add coldleads --env COLDLEADS_API_KEY=sk_your_secret_key -- npx -y --
 
 ### Hosted endpoint (no install)
 
-Clients that support remote servers with custom headers can connect directly:
+Clients that support remote servers can connect directly with a secret key:
 
 ```json
 {
@@ -91,7 +91,7 @@ Clients that support remote servers with custom headers can connect directly:
 }
 ```
 
-The endpoint speaks MCP Streamable HTTP (JSON-RPC 2.0 over POST, protocol versions 2024-11-05 to 2025-11-25) and rejects requests without a key with HTTP 401. It offers `search_leads` and `verify_email`; the onboarding tools are only in this stdio server. Clients that support remote servers only with OAuth (for example claude.ai custom connectors) cannot use it, because it accepts only an API key; use this stdio server in a desktop client instead.
+The endpoint speaks MCP Streamable HTTP (JSON-RPC 2.0 over POST, protocol versions 2024-11-05 to 2025-11-25) and offers `search_leads` and `verify_email`; the onboarding tools are only in this stdio server. ChatGPT connects to `https://coldleads.app/api/mcp` with OAuth 2.1: enable Developer mode in ChatGPT (Settings → Security and login), open ChatGPT Plugins, select `+`, and enter the URL. ChatGPT will ask you to sign in to Cold Leads and approve access. Other remote MCP clients can continue to use the API-key header shown above.
 
 ### Docker
 
