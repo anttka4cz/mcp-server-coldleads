@@ -13,6 +13,7 @@ export const USER_AGENT = "coldleads-mcp-server/1.0.0";
 
 export class ColdLeadsClient {
   private key: string;
+  private hostedNames: Set<string> | null = null;
 
   constructor(
     apiKey: string,
@@ -75,5 +76,25 @@ export class ColdLeadsClient {
 
   provisioningStatus(sessionId: string, claimToken: string): Promise<ApiResult> {
     return this.request("GET", `/api/agent/status?session_id=${encodeURIComponent(sessionId)}`, undefined, DEFAULT_TIMEOUT_MS, false, { "X-Claim-Token": claimToken });
+  }
+
+  async hostedTools(): Promise<Record<string, unknown>[]> {
+    const r = await this.request("POST", "/api/mcp", { jsonrpc: "2.0", id: 1, method: "tools/list" }, DEFAULT_TIMEOUT_MS, this.hasKey());
+    if (!r.ok) { this.hostedNames = new Set(); return []; }
+    const result = r.data.result as { tools?: Record<string, unknown>[] } | undefined;
+    const tools = Array.isArray(result?.tools) ? result.tools : [];
+    this.hostedNames = new Set(tools.map((t) => String(t.name ?? "")));
+    return tools;
+  }
+
+  async callHostedTool(name: string, args: unknown): Promise<{ content: { type: "text"; text: string }[]; isError?: boolean }> {
+    if (!this.hasKey()) return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: "missing_api_key", message: "Set COLDLEADS_API_KEY to a secret key (sk_…) to use workspace tools." }) }], isError: true };
+    if (!this.hostedNames && !(await this.hostedTools()).length) return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: "unknown_tool", message: `Unknown Cold Leads tool: ${name}` }) }], isError: true };
+    if (!this.hostedNames?.has(name)) return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: "unknown_tool", message: `Unknown Cold Leads tool: ${name}` }) }], isError: true };
+    const r = await this.request("POST", "/api/mcp", { jsonrpc: "2.0", id: 1, method: "tools/call", params: { name, arguments: args } }, DEFAULT_TIMEOUT_MS);
+    if (!r.ok) return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: r.error, message: r.hint ?? r.error, http_status: r.status }) }], isError: true };
+    const rpc = r.data.result as { content?: { type: "text"; text: string }[]; isError?: boolean } | undefined;
+    if (rpc?.content?.length) return { content: rpc.content, ...(rpc.isError ? { isError: true } : {}) };
+    return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: "invalid_mcp_response" }) }], isError: true };
   }
 }

@@ -1,6 +1,5 @@
-// Tool definitions of the stdio server (JSON Schema draft-07). search_leads and verify_email match the hosted endpoint
-// https://coldleads.app/api/mcp word for word. The two onboarding tools exist only here: the hosted endpoint needs an
-// API key on every request, while this server can call POST /api/agent/provision without one.
+// Tool definitions of the stdio server (JSON Schema draft-07). Workspace tools are loaded from hosted /api/mcp;
+// onboarding remains local because it can run before the account has an API key.
 export const LEADS_MAX = 50;
 export const LEADS_DEFAULT = 10;
 

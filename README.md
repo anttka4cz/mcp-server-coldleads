@@ -1,6 +1,6 @@
 # Cold Leads MCP server
 
-Model Context Protocol server for [Cold Leads](https://coldleads.app), the B2B outreach CRM. It lets AI agents in MCP clients that can start a local stdio server (Claude Desktop, Claude Code, Cursor, Windsurf, VS Code) verify e-mail addresses and look up contacts in your own Cold Leads workspace — and, when there is no API key yet, ask the human owner to approve a subscription.
+Model Context Protocol server for [Cold Leads](https://coldleads.app), the B2B outreach CRM. It exposes the hosted workspace tools to local MCP clients (Claude Desktop, Claude Code, Cursor, Windsurf, VS Code): contacts, imports, synced conversations, templates, campaigns, website capture, lead search, and verification. Without an API key, it can also ask the human owner to approve a subscription.
 
 ```bash
 npx -y --allow-git=root github:anttka4cz/mcp-server-coldleads
@@ -14,6 +14,11 @@ The package is not on npm; npx installs and builds it straight from GitHub. npm 
 | --- | --- | --- |
 | `verify_email` | Verification of one address: syntax, disposable domain, role account and MX records, plus an SMTP mailbox and catch-all check when Cold Leads can open an SMTP connection to the recipient's mail server (otherwise `reasons` contains `smtp_unreachable` and `catch_all` is `null`). Returns `valid`, `risky` or `invalid`. Answers within 5 seconds. | 1 credit |
 | `search_leads` | Contacts already in your Cold Leads CRM for a company domain, with an optional role keyword: e-mail, name, company, stage, tags, verification status and a `do_not_contact` flag. Cold Leads has no third-party lead database. | free |
+| `list_contacts`, `import_contacts`, `update_contact` | List, import up to 100 parsed contact rows per call, and update contacts in your own workspace. Imports deduplicate, skip global DNC entries and do not send e-mail. CSV/XLSX parsing is done by the assistant. | free |
+| `get_conversation`, `send_contact_message` | Read mailbox-synced contact conversations or send one e-mail after explicit approval of recipient and content. Opt-outs, bounces and DNC are blocked. | sender/provider limits |
+| `list_templates`, `save_template` | Review, create and update workspace templates; content screening applies. | free |
+| `list_campaigns`, `create_campaign_draft`, `launch_campaign` | Inspect campaigns, prepare drafts and audience estimates, and launch only after human review and explicit confirmation. | plan and recipient limits |
+| `get_workspace_info`, `setup_website_lead_capture` | Read non-secret workspace/mailbox status or generate a public-only form key/snippet for your website. Website submissions are inquiry leads, not automatic cold-outreach consent. | free |
 | `provision_account_and_get_payment_link` | For agents without a key: creates a pending account for the human owner and returns a Stripe payment link for the Business plan. The human decides and pays. | — |
 | `check_provisioning_status` | After the owner paid: returns the API key exactly once (with the `claim_token`). The server starts using it immediately. | — |
 
@@ -91,7 +96,7 @@ Clients that support remote servers can connect directly with a secret key:
 }
 ```
 
-The endpoint speaks MCP Streamable HTTP (JSON-RPC 2.0 over POST, protocol versions 2024-11-05 to 2025-11-25) and offers `search_leads` and `verify_email`; the onboarding tools are only in this stdio server. ChatGPT connects to `https://coldleads.app/api/mcp` with OAuth 2.1: enable Developer mode in ChatGPT (Settings → Security and login), open ChatGPT Plugins, select `+`, and enter the URL. ChatGPT will ask you to sign in to Cold Leads and approve access. Other remote MCP clients can continue to use the API-key header shown above.
+The stdio server discovers workspace tools from `https://coldleads.app/api/mcp` and forwards their calls to the hosted MCP service, so the hosted and local tools use the same account, policy and sending safeguards. It also includes keyless onboarding tools. ChatGPT connects to the hosted endpoint with OAuth 2.1; enable Developer mode in ChatGPT, add the endpoint, sign in to Cold Leads and review the requested access. Other remote MCP clients can use the API-key header shown above.
 
 ### Docker
 

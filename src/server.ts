@@ -5,7 +5,7 @@ import { LEADS_DEFAULT, LEADS_MAX, TOOLS } from "./tools.js";
 
 export const SERVER_INFO = { name: "coldleads", title: "Cold Leads", version: "1.0.0" };
 const INSTRUCTIONS =
-  "Cold Leads tools: search_leads finds contacts already in the user's own Cold Leads CRM for a company domain (free; Cold Leads has no third-party lead database); verify_email checks one address (1 credit, about 5 s; the SMTP mailbox and catch-all check runs only when available, see reasons). Never e-mail leads with do_not_contact=true. Verification is not consent: the user needs a lawful basis to contact each person. Without an API key, provision_account_and_get_payment_link creates a payment link for the human owner to approve; check_provisioning_status then returns the key once.";
+  "Cold Leads tools: search and verify leads; import and manage workspace contacts; read conversations; send one message only after explicit user confirmation; manage templates and campaign drafts; launch campaigns only after human review and confirmation; check non-secret workspace settings; and set up website lead forms. Only authenticated workspace data is accessible. Never e-mail opted-out, bounced or do-not-contact addresses. Verification is not consent; the user needs a lawful basis to contact each person. Website forms create inquiry contacts and do not establish cold-outreach consent. Without an API key, provision_account_and_get_payment_link creates a payment link for the human owner to approve; check_provisioning_status then returns the key once.";
 
 type ToolResult = { content: { type: "text"; text: string }[]; isError?: boolean };
 const text = (obj: unknown, isError = false): ToolResult => ({ content: [{ type: "text", text: JSON.stringify(obj) }], ...(isError ? { isError: true } : {}) });
@@ -46,7 +46,7 @@ function unknownKeys(a: Record<string, unknown>, allowed: string[]) {
 const KNOWN = ["verify_email", "search_leads", "provision_account_and_get_payment_link", "check_provisioning_status"];
 
 export async function callTool(client: ColdLeadsClient, name: string, rawArgs: unknown, clientName = "client"): Promise<ToolResult | null> {
-  if (!KNOWN.includes(name)) return null;
+  if (!KNOWN.includes(name)) return client.callHostedTool(name, rawArgs ?? {});
   const args = objectArgs(rawArgs ?? {});
   if (!args) return toolError("invalid_arguments", "arguments must be an object");
   if (name === "provision_account_and_get_payment_link") {
@@ -112,7 +112,11 @@ export async function callTool(client: ColdLeadsClient, name: string, rawArgs: u
 
 export function createServer(client: ColdLeadsClient): Server {
   const server = new Server(SERVER_INFO, { capabilities: { tools: { listChanged: false } }, instructions: INSTRUCTIONS });
-  server.setRequestHandler(ListToolsRequestSchema, async () => ({ tools: TOOLS as unknown as { name: string; inputSchema: { type: "object" } }[] }));
+  server.setRequestHandler(ListToolsRequestSchema, async () => {
+    const hosted = client.hasKey() ? await client.hostedTools() : [];
+    const onboarding = TOOLS.filter((t) => t.name === "provision_account_and_get_payment_link" || t.name === "check_provisioning_status");
+    return { tools: (hosted.length ? [...hosted, ...onboarding] : TOOLS) as unknown as { name: string; inputSchema: { type: "object" } }[] };
+  });
   server.setRequestHandler(CallToolRequestSchema, async (req) => {
     const result = await callTool(client, req.params.name, req.params.arguments, server.getClientVersion()?.name ?? "client");
     if (!result) return toolError("unknown_tool", `Unknown tool: ${req.params.name}`);

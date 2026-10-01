@@ -46,6 +46,20 @@ describe("tools/list", () => {
     expect(tools.slice(2).every((t) => t.annotations?.readOnlyHint === false)).toBe(true);
     expect(client.getServerVersion()).toMatchObject({ name: "coldleads", version: "1.0.0" });
   });
+
+  it("discovers hosted CRM tools and forwards their calls using the secret API key", async () => {
+    const data = { status: "success", added: 1, skipped: 0 };
+    const client = await setup(async (_url, init) => {
+      const rpc = JSON.parse(String(init.body)) as { method: string };
+      if (rpc.method === "tools/list") return json(200, { result: { tools: [{ name: "import_contacts", description: "Import contacts", inputSchema: { type: "object", properties: { contacts: { type: "array" } }, required: ["contacts"], additionalProperties: false } }] } });
+      return json(200, { result: { content: [{ type: "text", text: JSON.stringify(data) }] } });
+    });
+    const listed = await client.listTools();
+    expect(listed.tools.map((t) => t.name)).toContain("import_contacts");
+    const result = parse(await client.callTool({ name: "import_contacts", arguments: { contacts: [{ email: "a@example.com" }] } }));
+    expect(result.data).toEqual(data);
+    expect(calls.some((c) => c.url === "https://api.test/api/mcp" && (c.init.headers as Record<string, string>).Authorization === "Bearer sk_test")).toBe(true);
+  });
 });
 
 describe("verify_email", () => {
