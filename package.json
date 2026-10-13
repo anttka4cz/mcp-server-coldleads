@@ -45,7 +45,7 @@
     "@types/node": "^22.10.0",
     "ajv": "^8.17.1",
     "typescript": "^5.9.3",
-    "vitest": "^3.2.4"
+    "vitest": "^4.1.11"
   },
   "repository": {
     "type": "git",
