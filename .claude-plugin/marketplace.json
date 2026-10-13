@@ -1,0 +1,11 @@
+{
+  "name": "coldleads",
+  "owner": { "name": "Cold Leads", "email": "support@coldleads.app" },
+  "plugins": [
+    {
+      "name": "coldleads",
+      "source": "./distribution/claude-plugin",
+      "description": "Cold Leads B2B outreach CRM: contacts, verification, approved campaigns, replies, follow-ups."
+    }
+  ]
+}

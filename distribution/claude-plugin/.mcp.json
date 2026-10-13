@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "coldleads": {
+      "type": "http",
+      "url": "https://coldleads.app/api/mcp"
+    }
+  }
+}
