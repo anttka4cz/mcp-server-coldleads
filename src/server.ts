@@ -2,17 +2,18 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { CallToolRequestSchema, ListToolsRequestSchema } from "@modelcontextprotocol/sdk/types.js";
 import { ColdLeadsClient, type ApiFail } from "./api.js";
 import { LEADS_DEFAULT, LEADS_MAX, TOOLS } from "./tools.js";
+import { VERSION } from "./version.js";
 
-export const SERVER_INFO = { name: "coldleads", title: "Cold Leads", version: "1.0.0" };
+export const SERVER_INFO = { name: "coldleads", title: "Cold Leads", version: VERSION };
 const INSTRUCTIONS =
-  "Cold Leads tools: search and verify leads; import and manage workspace contacts; read conversations; send one message only after explicit user confirmation; manage templates and campaign drafts; launch campaigns only after human review and confirmation; check non-secret workspace settings; and set up website lead forms. Only authenticated workspace data is accessible. Never e-mail opted-out, bounced or do-not-contact addresses. Verification is not consent; the user needs a lawful basis to contact each person. Website forms create inquiry contacts and do not establish cold-outreach consent. Without an API key, provision_account_and_get_payment_link creates a payment link for the human owner to approve; check_provisioning_status then returns the key once.";
+  "Cold Leads tools: search and verify leads; import and manage workspace contacts; read conversations; send one message only after explicit user confirmation; manage templates and campaign drafts; launch campaigns only after human review and confirmation; check non-secret workspace settings; and set up website lead forms. Only authenticated workspace data is accessible. Never e-mail opted-out, bounced or do-not-contact addresses. Verification is not consent; the user needs a lawful basis to contact each person. Website forms create inquiry contacts and do not establish cold-outreach consent. Without an API key, provision_account_and_get_payment_link creates a payment link for the human owner to approve; check_provisioning_status then returns the key once. To try the tools on sample data without a key, the user can connect the demo server https://coldleads.app/api/mcp/demo (never sends e-mail).";
 
 type ToolResult = { content: { type: "text"; text: string }[]; isError?: boolean };
 const text = (obj: unknown, isError = false): ToolResult => ({ content: [{ type: "text", text: JSON.stringify(obj) }], ...(isError ? { isError: true } : {}) });
 const toolError = (error: string, message: string, extra: Record<string, unknown> = {}) => text({ status: "error", error, message, ...extra }, true);
 
 const MESSAGES: Record<string, string> = {
-  missing_api_key: "COLDLEADS_API_KEY is not set. Create a secret key (sk_…) in Cold Leads → Settings → API keys (Business plan) and add it to the MCP server environment.",
+  missing_api_key: "COLDLEADS_API_KEY is not set. Create a secret key (sk_…) in Cold Leads → Settings → API keys (Business plan) and add it to the MCP server environment. To try the tools without a key first, connect an MCP client to the no-key demo server https://coldleads.app/api/mcp/demo (sample data, never sends e-mail).",
   bad_api_key: "The Cold Leads API key was rejected. Check COLDLEADS_API_KEY (a secret key starting with sk_).",
   publishable_key_not_allowed: "A publishable key (lk_…) cannot call the API; use a secret key (sk_…).",
   api_not_in_plan: "This Cold Leads plan does not include the API (Business plan required).",

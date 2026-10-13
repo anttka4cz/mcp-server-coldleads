@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { InMemoryTransport } from "@modelcontextprotocol/sdk/inMemory.js";
 import { ColdLeadsClient, VERIFY_CLIENT_TIMEOUT_MS, type FetchLike } from "../src/api.js";
-import { createServer } from "../src/server.js";
+import { createServer, SERVER_INFO } from "../src/server.js";
 
 // The MCP server over an in-memory transport with a fake HTTP layer: list, success mappings, every error path.
 type Call = { url: string; init: RequestInit };
@@ -44,7 +44,7 @@ describe("tools/list", () => {
     expect(tools.every((t) => t.inputSchema.type === "object")).toBe(true);
     expect(tools.slice(0, 2).every((t) => t.annotations?.readOnlyHint === true)).toBe(true);
     expect(tools.slice(2).every((t) => t.annotations?.readOnlyHint === false)).toBe(true);
-    expect(client.getServerVersion()).toMatchObject({ name: "coldleads", version: "1.0.0" });
+    expect(client.getServerVersion()).toMatchObject({ name: "coldleads", version: SERVER_INFO.version });
   });
 
   it("discovers hosted CRM tools and forwards their calls using the secret API key", async () => {

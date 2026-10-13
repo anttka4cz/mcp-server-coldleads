@@ -1,5 +1,7 @@
 // Thin client for the Cold Leads REST API v1 (https://coldleads.app/api/v1). No business logic here: limits,
 // credits, verification and search all run on the server.
+import { VERSION } from "./version.js";
+
 export type ApiOk = { ok: true; status: number; data: Record<string, unknown> };
 export type ApiFail = { ok: false; status: number; error: string; hint?: string; data?: Record<string, unknown> };
 export type ApiResult = ApiOk | ApiFail;
@@ -9,7 +11,7 @@ export const DEFAULT_BASE = "https://coldleads.app";
 export const VERIFY_SERVER_BUDGET_MS = 4000;
 export const VERIFY_CLIENT_TIMEOUT_MS = 4900;
 export const DEFAULT_TIMEOUT_MS = 15_000;
-export const USER_AGENT = "coldleads-mcp-server/1.0.0";
+export const USER_AGENT = `coldleads-mcp-server/${VERSION}`;
 
 export class ColdLeadsClient {
   private key: string;
@@ -88,7 +90,7 @@ export class ColdLeadsClient {
   }
 
   async callHostedTool(name: string, args: unknown): Promise<{ content: { type: "text"; text: string }[]; isError?: boolean }> {
-    if (!this.hasKey()) return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: "missing_api_key", message: "Set COLDLEADS_API_KEY to a secret key (sk_…) to use workspace tools." }) }], isError: true };
+    if (!this.hasKey()) return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: "missing_api_key", message: "Set COLDLEADS_API_KEY to a secret key (sk_…) to use workspace tools. To try the tools without a key first, connect an MCP client to the no-key demo server https://coldleads.app/api/mcp/demo (sample data, never sends e-mail)." }) }], isError: true };
     if (!this.hostedNames && !(await this.hostedTools()).length) return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: "unknown_tool", message: `Unknown Cold Leads tool: ${name}` }) }], isError: true };
     if (!this.hostedNames?.has(name)) return { content: [{ type: "text", text: JSON.stringify({ status: "error", error: "unknown_tool", message: `Unknown Cold Leads tool: ${name}` }) }], isError: true };
     const r = await this.request("POST", "/api/mcp", { jsonrpc: "2.0", id: 1, method: "tools/call", params: { name, arguments: args } }, DEFAULT_TIMEOUT_MS);

@@ -1,6 +1,6 @@
 {
   "name": "@coldleads/mcp-server",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Model Context Protocol server for Cold Leads (coldleads.app), the B2B outreach CRM: contacts, imports, e-mail verification, templates, campaign drafts, conversations, reply queue and follow-ups in your own workspace; sending needs explicit approval. Includes keyless agent onboarding.",
   "mcpName": "io.github.anttka4cz/mcp-server-coldleads",
   "type": "module",
@@ -11,7 +11,8 @@
   "files": [
     "dist",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md"
   ],
   "engines": {
     "node": ">=20"
