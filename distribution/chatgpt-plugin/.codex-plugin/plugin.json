@@ -23,7 +23,7 @@
     "shortDescription": "Outreach CRM for B2B sales",
     "longDescription": "Cold Leads is a sales CRM for B2B outreach. Connect your Cold Leads account to manage prospects, e-mail outreach, replies and follow-ups from ChatGPT.\n\n- Import prospects you already have (pasted lists or parsed CSV rows); duplicates and do-not-contact addresses are skipped, and importing never sends e-mail.\n- Verify e-mail addresses: syntax, disposable domains, role addresses and MX, plus the mailbox itself when the recipient's server can be reached.\n- Write templates and prepare campaign drafts with a recipient estimate. Campaigns and single messages are sent from your connected mailbox, and only after you approve the exact recipients and text.\n- See who replied and is waiting for an answer, which follow-ups are due, and everything known about a lead before you act.\n- Schedule the next step for a contact, and read an audit log of every call.\n\nCold Leads has no third-party lead database and does not enrich contacts: you bring the leads. Opted-out, bounced and do-not-contact contacts are never e-mailed. Requires a Cold Leads account.",
     "developerName": "Cold Leads",
-    "category": "Productivity",
+    "category": "Marketing",
     "capabilities": [
       "Read",
       "Write"
