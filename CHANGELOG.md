@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.2 (2026-10-13)
+
+- `verify_email` no longer times out on real domains: the server now gets a 3 s verification budget and the client waits up to 8 s, which leaves room for authentication, credits and network time. Before, the 4.9 s client limit was often hit while the server was still answering.
+- Tool descriptions state only what each tool does.
+
 ## 1.0.1 (2026-10-13)
 
 - `serverInfo.version` and the `User-Agent` header now report the real package version from one constant; a test keeps it equal to `package.json`.

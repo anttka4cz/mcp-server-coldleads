@@ -9,7 +9,7 @@ export type FetchLike = (url: string, init: RequestInit) => Promise<Response>;
 
 export const DEFAULT_BASE = "https://coldleads.app";
 export const VERIFY_SERVER_BUDGET_MS = 3000;
-export const VERIFY_CLIENT_TIMEOUT_MS = 4900;
+export const VERIFY_CLIENT_TIMEOUT_MS = 8000;
 export const DEFAULT_TIMEOUT_MS = 15_000;
 export const USER_AGENT = `coldleads-mcp-server/${VERSION}`;
 

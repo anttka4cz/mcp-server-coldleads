@@ -33,7 +33,7 @@ Demo limits:
 
 | Tool | What it does | Cost |
 | --- | --- | --- |
-| `verify_email` | Verification of one address: syntax, disposable domain, role account and MX records, plus an SMTP mailbox and catch-all check when Cold Leads can open an SMTP connection to the recipient's mail server (otherwise `reasons` contains `smtp_unreachable` and `catch_all` is `null`). Returns `valid`, `risky` or `invalid`. Answers within 5 seconds. | 1 credit |
+| `verify_email` | Verification of one address: syntax, disposable domain, role account and MX records, plus an SMTP mailbox and catch-all check when Cold Leads can open an SMTP connection to the recipient's mail server (otherwise `reasons` contains `smtp_unreachable` and `catch_all` is `null`). Returns `valid`, `risky` or `invalid`. Usually answers within a few seconds (the client gives up after 8 s). | 1 credit |
 | `search_leads` | Contacts already in your Cold Leads CRM for a company domain, with an optional role keyword: e-mail, name, company, stage, tags, verification status and a `do_not_contact` flag. Cold Leads has no third-party lead database. | free |
 | `list_contacts`, `import_contacts`, `update_contact` | List, import up to 100 parsed contact rows per call, and update contacts in your own workspace. Imports deduplicate, skip global DNC entries and do not send e-mail. CSV/XLSX parsing is done by the assistant. | free |
 | `get_conversation`, `send_contact_message` | Read mailbox-synced contact conversations or send one e-mail after explicit approval of recipient and content. Opt-outs, bounces and DNC are blocked. | sender/provider limits |

@@ -85,15 +85,15 @@ describe("verify_email", () => {
     expect(parse(await client.callTool({ name: "verify_email", arguments: { email: "x@acme.com" } })).data).toMatchObject({ validity: "risky", catch_all: true });
     expect(parse(await client.callTool({ name: "verify_email", arguments: { email: "x@slow.com" } })).data).toMatchObject({ validity: "risky", catch_all: null });
   });
-  it("a hanging API is abandoned before 5 s with a timeout error (Stage 2.4)", async () => {
+  it("a hanging API is abandoned after the 8 s client timeout with a timeout error", async () => {
     const client = await setup((_u, init) => new Promise((_, rej) => init.signal?.addEventListener("abort", () => rej(init.signal?.reason ?? new DOMException("aborted", "TimeoutError")))));
     const t = Date.now();
     const r = parse(await client.callTool({ name: "verify_email", arguments: { email: "x@hang.com" } }));
     const ms = Date.now() - t;
-    expect(ms).toBeLessThan(5000);
+    expect(ms).toBeLessThan(VERIFY_CLIENT_TIMEOUT_MS + 1000);
     expect(ms).toBeGreaterThanOrEqual(VERIFY_CLIENT_TIMEOUT_MS - 50);
     expect(r).toMatchObject({ isError: true, data: { status: "error", error: "timeout" } });
-  }, 10_000);
+  }, 15_000);
   it.each([
     [401, { error: "bad_api_key" }, "bad_api_key"],
     [401, { error: "missing_api_key" }, "missing_api_key"],

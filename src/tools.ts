@@ -25,7 +25,7 @@ export const TOOLS = [
     name: "verify_email",
     title: "Verify an e-mail address",
     description:
-      "Verifies an e-mail address: syntax, disposable domain, role account and MX records, plus an SMTP mailbox and catch-all check when Cold Leads can open an SMTP connection to the recipient's mail server (otherwise reasons contains smtp_unreachable and catch_all is null). Returns validity (valid, risky or invalid), a score and reason codes. Answers within about 5 seconds; costs 1 credit.",
+      "Verifies an e-mail address: syntax, disposable domain, role account and MX records, plus an SMTP mailbox and catch-all check when Cold Leads can open an SMTP connection to the recipient's mail server (otherwise reasons contains smtp_unreachable and catch_all is null). Returns validity (valid, risky or invalid), a score and reason codes. Usually answers within a few seconds; costs 1 credit.",
     inputSchema: {
       type: "object",
       properties: {
