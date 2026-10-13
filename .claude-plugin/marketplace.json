@@ -1,6 +1,12 @@
 {
   "name": "coldleads",
-  "owner": { "name": "Cold Leads", "email": "support@coldleads.app" },
+  "owner": {
+    "name": "Cold Leads",
+    "email": "support@coldleads.app"
+  },
+  "metadata": {
+    "description": "Cold Leads plugin for Claude Code: the hosted Cold Leads MCP server (B2B outreach CRM) with OAuth sign-in, plus an outreach skill."
+  },
   "plugins": [
     {
       "name": "coldleads",
