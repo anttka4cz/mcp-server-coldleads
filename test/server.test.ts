@@ -63,12 +63,12 @@ describe("tools/list", () => {
 });
 
 describe("verify_email", () => {
-  it("returns the compact success JSON and sends a 4 s server budget with a Bearer key", async () => {
+  it("returns the compact success JSON and sends a 3 s server budget with a Bearer key", async () => {
     const client = await setup(async () => json(200, { email: "john@example.com", status: "valid", score: 97, reasons: ["ok"], mx: "mx", catch_all: false, disposable: false, role: false }));
     const r = parse(await client.callTool({ name: "verify_email", arguments: { email: "john@example.com" } }));
     expect(r).toEqual({ isError: false, type: "text", data: { status: "success", email: "john@example.com", validity: "valid", catch_all: false, score: 97, reasons: ["ok"], disposable: false, role_account: false } });
     expect(calls[0].url).toBe("https://api.test/api/v1/verify");
-    expect(JSON.parse(String(calls[0].init.body))).toEqual({ email: "john@example.com", timeout_ms: 4000 });
+    expect(JSON.parse(String(calls[0].init.body))).toEqual({ email: "john@example.com", timeout_ms: 3000 });
     expect((calls[0].init.headers as Record<string, string>).Authorization).toBe("Bearer sk_test");
   });
   it("a mailbox that could not be checked (smtp_unreachable) reports catch_all=null", async () => {
