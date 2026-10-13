@@ -1,7 +1,7 @@
 {
   "name": "@coldleads/mcp-server",
   "version": "1.0.0",
-  "description": "Model Context Protocol server for Cold Leads (coldleads.app): verify e-mail addresses, look up contacts in your own Cold Leads CRM by company domain, and onboard agents with human-approved payment.",
+  "description": "Model Context Protocol server for Cold Leads (coldleads.app), the B2B outreach CRM: contacts, imports, e-mail verification, templates, campaign drafts, conversations, reply queue and follow-ups in your own workspace; sending needs explicit approval. Includes keyless agent onboarding.",
   "mcpName": "io.github.anttka4cz/mcp-server-coldleads",
   "type": "module",
   "bin": {
@@ -30,9 +30,11 @@
     "b2b",
     "leads",
     "crm",
-    "coldleads"
+    "coldleads",
+    "sales",
+    "ai-agents"
   ],
-  "homepage": "https://github.com/anttka4cz/mcp-server-coldleads#readme",
+  "homepage": "https://coldleads.app/developers?utm_source=npm&utm_medium=readme&utm_campaign=mcp-server",
   "license": "MIT",
   "author": "Anton Tkachenko",
   "dependencies": {
@@ -50,5 +52,8 @@
   },
   "bugs": {
     "url": "https://github.com/anttka4cz/mcp-server-coldleads/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

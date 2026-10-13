@@ -1,12 +1,20 @@
 # Cold Leads MCP server
 
-Model Context Protocol server for [Cold Leads](https://coldleads.app), the B2B outreach CRM. It exposes the hosted workspace tools to local MCP clients (Claude Desktop, Claude Code, Cursor, Windsurf, VS Code): contacts, imports, synced conversations, templates, campaigns, website capture, lead search, and verification. Without an API key, it can also ask the human owner to approve a subscription.
+Model Context Protocol server for [Cold Leads](https://coldleads.app/developers?utm_source=github&utm_medium=readme&utm_campaign=mcp-server), the B2B outreach CRM. It exposes the hosted workspace tools to local MCP clients (Claude Desktop, Claude Code, Cursor, Windsurf, VS Code): contacts, imports, synced conversations, templates, campaigns, website capture, lead search, and verification. Without an API key, it can also ask the human owner to approve a subscription.
 
 ```bash
-npx -y --allow-git=root github:anttka4cz/mcp-server-coldleads
+npx -y @coldleads/mcp-server
 ```
 
-The package is not on npm; npx installs and builds it straight from GitHub. npm 12 blocks installs from git unless you allow them, which `--allow-git=root` does for this command; npm 10 accepts the flag too.
+## Try it without a key
+
+The hosted demo server has the same tools over a sample workspace (fictional contacts on `.example` domains). It never sends e-mail, uses no credits, and keeps your changes for one MCP session (24 hours):
+
+```bash
+claude mcp add --transport http coldleads-demo https://coldleads.app/api/mcp/demo
+```
+
+Then ask: *"Verify these three contacts and prepare outreach drafts. Don't send anything until I approve. Jana Dvořák <jana.dvorak@ridgeline.example>, info@harborlane.example, Piotr Kowalski <piotr@quillmetrics.example>"*. Any client that supports remote (Streamable HTTP) MCP servers can use the same URL. A complete agent built on it: [cold-leads-ai-sales-agent](https://github.com/anttka4cz/cold-leads-ai-sales-agent).
 
 ## Tools
 
@@ -18,6 +26,7 @@ The package is not on npm; npx installs and builds it straight from GitHub. npm 
 | `get_conversation`, `send_contact_message` | Read mailbox-synced contact conversations or send one e-mail after explicit approval of recipient and content. Opt-outs, bounces and DNC are blocked. | sender/provider limits |
 | `list_templates`, `save_template` | Review, create and update workspace templates; content screening applies. | free |
 | `list_campaigns`, `create_campaign_draft`, `launch_campaign` | Inspect campaigns, prepare drafts and audience estimates, and launch only after human review and explicit confirmation. | plan and recipient limits |
+| `get_lead_context`, `get_sales_next_actions`, `schedule_follow_up`, `get_agent_activity` | Everything known about one lead (contactability, history, last reply class, next action); the queue of replies waiting for an answer and due follow-ups; set a contact's next action (never sends e-mail); the audit log of API and MCP calls. | free |
 | `get_workspace_info`, `setup_website_lead_capture` | Read non-secret workspace/mailbox status or generate a public-only form key/snippet for your website. Website submissions are inquiry leads, not automatic cold-outreach consent. | free |
 | `provision_account_and_get_payment_link` | For agents without a key: creates a pending account for the human owner and returns a Stripe payment link for the Business plan. The human decides and pays. | — |
 | `check_provisioning_status` | After the owner paid: returns the API key exactly once (with the `claim_token`). The server starts using it immediately. | — |
@@ -47,7 +56,7 @@ Errors come back as tool results with `isError: true`, for example `{"status":"e
   "mcpServers": {
     "coldleads": {
       "command": "npx",
-      "args": ["-y", "--allow-git=root", "github:anttka4cz/mcp-server-coldleads"],
+      "args": ["-y", "@coldleads/mcp-server"],
       "env": { "COLDLEADS_API_KEY": "sk_your_secret_key" }
     }
   }
@@ -61,7 +70,7 @@ Errors come back as tool results with `isError: true`, for example `{"status":"e
 ### Claude Code
 
 ```bash
-claude mcp add coldleads --env COLDLEADS_API_KEY=sk_your_secret_key -- npx -y --allow-git=root github:anttka4cz/mcp-server-coldleads
+claude mcp add coldleads --env COLDLEADS_API_KEY=sk_your_secret_key -- npx -y @coldleads/mcp-server
 ```
 
 ### VS Code
@@ -74,7 +83,7 @@ claude mcp add coldleads --env COLDLEADS_API_KEY=sk_your_secret_key -- npx -y --
     "coldleads": {
       "type": "stdio",
       "command": "npx",
-      "args": ["-y", "--allow-git=root", "github:anttka4cz/mcp-server-coldleads"],
+      "args": ["-y", "@coldleads/mcp-server"],
       "env": { "COLDLEADS_API_KEY": "sk_your_secret_key" }
     }
   }
