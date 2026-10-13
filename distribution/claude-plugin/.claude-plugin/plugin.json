@@ -2,9 +2,23 @@
   "name": "coldleads",
   "version": "1.0.0",
   "description": "Cold Leads B2B outreach CRM in Claude Code: import and verify contacts, prepare campaigns that send only after your approval, work replies and follow-ups.",
-  "author": { "name": "Cold Leads", "email": "support@coldleads.app", "url": "https://coldleads.app" },
+  "author": {
+    "name": "Cold Leads",
+    "email": "support@coldleads.app",
+    "url": "https://coldleads.app"
+  },
   "homepage": "https://coldleads.app/solutions/for-ai-agents",
   "repository": "https://github.com/anttka4cz/mcp-server-coldleads",
   "license": "MIT",
-  "keywords": ["crm", "sales", "outreach", "email-verification", "follow-ups", "mcp"]
+  "keywords": [
+    "crm",
+    "sales",
+    "outreach",
+    "email-verification",
+    "follow-ups",
+    "mcp"
+  ],
+  "privacyPolicyUrl": "https://coldleads.app/privacy",
+  "supportUrl": "https://coldleads.app/contact",
+  "documentationUrl": "https://coldleads.app/use-cases/chatgpt-claude-connector"
 }
