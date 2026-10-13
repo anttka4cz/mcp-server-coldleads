@@ -8,13 +8,26 @@ npx -y @coldleads/mcp-server
 
 ## Try it without a key
 
-The hosted demo server has the same tools over a sample workspace (fictional contacts on `.example` domains). It never sends e-mail, uses no credits, and keeps your changes for one MCP session (24 hours):
+The hosted demo server has the same tools over a sample workspace (fictional contacts on `.example` domains). It never sends e-mail and uses no credits:
 
 ```bash
 claude mcp add --transport http coldleads-demo https://coldleads.app/api/mcp/demo
 ```
 
 Then ask: *"Verify these three contacts and prepare outreach drafts. Don't send anything until I approve. Jana Dvořák <jana.dvorak@ridgeline.example>, info@harborlane.example, Piotr Kowalski <piotr@quillmetrics.example>"*. Any client that supports remote (Streamable HTTP) MCP servers can use the same URL. A complete agent built on it: [cold-leads-ai-sales-agent](https://github.com/anttka4cz/cold-leads-ai-sales-agent).
+
+Demo limits:
+
+| Limit | Value |
+| --- | --- |
+| Session | 24 hours from its start (not extended), visible only to that session |
+| Contacts | 10, including the 4 sample contacts |
+| Templates | 1 of your own (besides the sample template; update it with `template_id`) |
+| Campaign drafts | 1 |
+| Text length | notes 100 characters, template body 500, message 200 |
+| Requests | 120 per minute and 20 new sessions per hour per IP address |
+| Verification | sample results for the three demo prospects; other addresses get syntax, disposable-domain and role checks only (no MX or mailbox check) |
+| Sending | never: `send_contact_message` and `launch_campaign` still require approval, then return `demo_not_sent` |
 
 ## Tools
 
