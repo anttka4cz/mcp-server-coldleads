@@ -1,0 +1,37 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.anttka4cz/mcp-server-coldleads",
+  "title": "Cold Leads",
+  "description": "B2B outreach CRM for AI agents: contacts, verification, approved campaigns, replies, follow-ups.",
+  "websiteUrl": "https://coldleads.app/developers?utm_source=mcp-registry&utm_medium=listing&utm_campaign=mcp-server",
+  "repository": {
+    "url": "https://github.com/anttka4cz/mcp-server-coldleads",
+    "source": "github"
+  },
+  "version": "1.0.1",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@coldleads/mcp-server",
+      "version": "1.0.1",
+      "transport": {
+        "type": "stdio"
+      },
+      "environmentVariables": [
+        {
+          "name": "COLDLEADS_API_KEY",
+          "description": "Secret API key (sk_...) from Cold Leads → Settings → API keys (Business plan). Optional: without it the server offers agent onboarding only.",
+          "isRequired": false,
+          "isSecret": true,
+          "format": "string"
+        }
+      ]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://coldleads.app/api/mcp"
+    }
+  ]
+}

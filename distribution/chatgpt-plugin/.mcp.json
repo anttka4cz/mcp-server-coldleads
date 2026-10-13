@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "coldleads": {
+      "type": "streamable-http",
+      "url": "https://coldleads.app/api/mcp",
+      "extensions": {
+        "com.openai": {
+          "auth": {
+            "type": "oauth",
+            "client": { "mode": "dcr" }
+          }
+        }
+      }
+    }
+  }
+}
