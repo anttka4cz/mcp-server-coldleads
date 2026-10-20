@@ -1,5 +1,7 @@
 # Cold Leads MCP server
 
+<a href="https://mcprush.com/to/cold-leads-mcp"><img width="380" height="200" src="https://mcprush.com/badge/cold-leads-mcp/card.svg?theme=light" alt="Cold Leads MCP server" loading="lazy" /></a>
+
 Model Context Protocol server for [Cold Leads](https://coldleads.app/developers?utm_source=github&utm_medium=readme&utm_campaign=mcp-server), the B2B outreach CRM. It exposes the hosted workspace tools to local MCP clients (Claude Desktop, Claude Code, Cursor, Windsurf, VS Code): contacts, imports, synced conversations, templates, campaigns, website capture, lead search, and verification. Without an API key, it can also ask the human owner to approve a subscription.
 
 ```bash
